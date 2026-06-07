@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
+import paho.mqtt.client as mqtt 
 from datetime import datetime
 
 # =====================================
 # CONFIGURAÇÕES
 # =====================================
 
-modo_simulacao = True
+modo_simulacao = False
 
 capsula = {
     "temperatura": 25,
@@ -14,6 +15,47 @@ capsula = {
     "status": "NORMAL",
     "alertas": []
 }
+
+# =====================================
+# MQTT
+# =====================================
+
+def on_message(client, userdata, msg):
+
+    try:
+
+        valor = msg.payload.decode()
+
+        if msg.topic == "capsula/temperatura":
+            capsula["temperatura"] = float(valor)
+
+        elif msg.topic == "capsula/luminosidade":
+            capsula["luminosidade"] = int(valor)
+
+    except:
+        pass
+
+
+if not modo_simulacao:
+
+    client = mqtt.Client(
+        mqtt.CallbackAPIVersion.VERSION2
+    )
+
+    client.on_message = on_message
+
+    client.connect(
+        "broker.hivemq.com",
+        1883,
+        60
+    )
+
+    client.subscribe("capsula/temperatura")
+    client.subscribe("capsula/luminosidade")
+
+    client.loop_start()
+
+    print("MQTT conectado")
 
 # =====================================
 # LOOP PRINCIPAL
@@ -173,6 +215,17 @@ while True:
         2
     )
 
+    cor_fonte = (0, 255, 0) if not modo_simulacao else (0, 255, 255)
+
+    cv2.putText(
+        tela,
+        f"Fonte dos Dados: {'ESP32' if not modo_simulacao else 'SIMULACAO'}",
+        (650, 300),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        cor_fonte,
+        2
+    )
     cv2.putText(
         tela,
         f"STATUS: {status}",
@@ -236,8 +289,8 @@ while True:
 
     cv2.rectangle(
         tela,
-        (650, 560),
-        (1000, 600),
+        (650, 540),
+        (1000, 580),
         (255, 255, 255),
         2
     )
@@ -248,8 +301,8 @@ while True:
 
     cv2.rectangle(
         tela,
-        (650, 560),
-        (650 + largura_lux, 600),
+        (650, 540),
+        (650 + largura_lux, 580),
         (255, 255, 0),
         -1
     )
@@ -329,3 +382,7 @@ while True:
             capsula["luminosidade"] -= 5
 
 cv2.destroyAllWindows()
+
+if not modo_simulacao:
+    client.loop_stop()
+    client.disconnect()
