@@ -310,14 +310,18 @@ while True:
     # ----------------------------------
     # ALERTAS
     # ----------------------------------
+
     cv2.rectangle(tela, (20, 600), (1180, 680), (35, 20, 20), -1)
     cv2.rectangle(tela, (20, 600), (1180, 680), (100, 40, 40), 1)
 
     if alertas:
-        y_a = 635
+        # Cada alerta em sua própria linha, empilhados verticalmente
+        y_base = 625
+        espaco_linha = 28
         for i, alerta in enumerate(alertas):
-            cv2.putText(tela, f"[!] {alerta}", (40 + i * 400, y_a),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            y_pos = y_base + (i * espaco_linha)
+            cv2.putText(tela, f"[!] {alerta}", (40, y_pos),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
     else:
         cv2.putText(tela, "Todos os sistemas operando normalmente.",
                     (40, 635), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 200, 80), 2)

@@ -61,6 +61,7 @@ Em modo simulação, use as teclas:
 |---|---|
 | `Q` / `A` | Temperatura + / − |
 | `W` / `S` | Luminosidade + / − |
+| `ESC` | Encerra o programa |
 
 ---
 
